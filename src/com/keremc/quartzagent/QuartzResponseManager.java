@@ -95,7 +95,7 @@ public class QuartzResponseManager {
             if (option == Option.ERROR_EXISTENCE) {
                 File errorFolder = new File(j.getPath() + File.separator + File.separator + "Errors" + File.separator + data);
 
-                if (errorFolder == null) {
+                if (!errorFolder.exists()) {
                     continue;
                 }
 
