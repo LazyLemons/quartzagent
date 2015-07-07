@@ -20,8 +20,6 @@ import java.util.Set;
 
 public class QuartzResponseManager {
 
-
-    private String status = "OK";
     private int code = 0;
     private Set<Job> jobs = new HashSet<Job>();
 

@@ -35,9 +35,14 @@ public class QuartzServlet extends HttpServlet {
 
         if (option == null) {
             PrintWriter out = response.getWriter();
+            out.print("3|Unknown option - ");
+
+            boolean first = true;
 
             for (Job j : manager.getJobs()) {
-                out.println(j.toString());
+
+                out.print((!first ? ", " : "") + j.toString());
+                first = false;
             }
             out.flush();
             return;
