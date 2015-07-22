@@ -171,7 +171,7 @@ public class QuartzResponseManager {
                 }
 
                 if (!message.isEmpty()) {
-                    message += ",";
+                    message += ";";
                 }
                 message += j.getName() + "-emails-captured=" + files;
             }
