@@ -153,7 +153,7 @@ public class QuartzResponseManager {
                     if (!lastBatchProcessedFolderTopNames.containsKey(j.getName())) {
 
                         lastBatchProcessedFolderTopNames.put(j.getName(), newest.getName());
-                        lastFolderReads.put(j.getName(), 0L);
+                        lastFolderReads.put(j.getName(), newest.lastModified() + 1);
                     }
 
                     if (!lastBatchProcessedFolderTopNames.get(j.getName()).equals(newest.getName())) {
@@ -170,10 +170,7 @@ public class QuartzResponseManager {
 
                 }
 
-                if (!message.isEmpty()) {
-                    message += ";";
-                }
-                message += j.getName() + "-emails-captured=" + files;
+                message += j.getName() + "-emails-captured=" + files+"; ";
             }
         }
 
