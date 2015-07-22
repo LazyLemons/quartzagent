@@ -13,15 +13,14 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class QuartzResponseManager {
 
-    private int code = 0;
     private Set<Job> jobs = new HashSet<Job>();
+
+    private static HashMap<String, String> lastBatchProcessedFolderTopNames = new HashMap<String, String>();
+    private static HashMap<String, Long> lastFolderReads= new HashMap<String, Long>();
 
     public void query() {
 
@@ -49,6 +48,10 @@ public class QuartzResponseManager {
                 Document soap = builder.parse(new InputSource(new StringReader(dirdata)));
 
                 Element e = (Element) soap.getElementsByTagName("ns1:inputDirectory").item(0);
+
+                if (e == null) {
+                    continue;
+                }
 
                 Job j = new Job(running, name, e.getTextContent());
                 jobs.add(j);
@@ -80,6 +83,7 @@ public class QuartzResponseManager {
 
     public String process(Option option) {
         // <id>|<message>|<graphData>
+        int code = 0;
 
         ArrayList<String> header = new ArrayList<String>();
         String message = "";
@@ -132,6 +136,44 @@ public class QuartzResponseManager {
 
                 }
 
+            } else if (option == Option.CAPTURED_EMAILS) {
+                String path = j.getPath();
+                if (path.endsWith("/")) {
+                    path = path.substring(0, path.length() - 1);
+                }
+                String finalFolderName = path.split("/")[path.split("/").length - 1];
+
+                File cap_data = new File(new File(j.getPath()).getParentFile().getParentFile() + File.separator + "cap_data" + File.separator + "commit" + File.separator + finalFolderName);
+                System.out.println(cap_data.toString());
+                int files = 0;
+                if (cap_data.exists() && cap_data.isDirectory() && cap_data.listFiles().length > 0) {
+
+                    File newest = newestFileInDir(cap_data);
+
+                    if (!lastBatchProcessedFolderTopNames.containsKey(j.getName())) {
+
+                        lastBatchProcessedFolderTopNames.put(j.getName(), newest.getName());
+                        lastFolderReads.put(j.getName(), 0L);
+                    }
+
+                    if (!lastBatchProcessedFolderTopNames.get(j.getName()).equals(newest.getName())){
+                        lastFolderReads.put(j.getName(), new File(cap_data + File.separator + lastBatchProcessedFolderTopNames.get(j.getName())).lastModified());
+                        lastBatchProcessedFolderTopNames.put(j.getName(), newest.getName());
+                    }
+
+                    for (File f : cap_data.listFiles()) {
+                        if (f.lastModified() > lastFolderReads.get(j.getName()) && f.isDirectory()) {
+                            files += f.listFiles().length;
+                        }
+                    }
+                    header.add("" + files + " emails have been captured for " + j.getName()+" since " + new SimpleDateFormat().format(new Date(lastFolderReads.get(j.getName()))));
+
+                }
+
+                if (!message.isEmpty()) {
+                    message += ",";
+                }
+                message += j.getName() + "-emails-captured=" + files;
             }
         }
 
@@ -145,4 +187,15 @@ public class QuartzResponseManager {
         return code + "|" + data + "|" + message;
     }
 
+    public static File newestFileInDir(File file) {
+        long la = 0L;
+        File a = file.listFiles()[0];
+        for (File f : file.listFiles()) {
+            if (f.lastModified() >la ){
+                la = f.lastModified();
+                a=f;
+            }
+        }
+        return a;
+    }
 }

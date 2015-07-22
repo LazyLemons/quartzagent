@@ -4,7 +4,8 @@ public enum Option {
 
     ERROR_EXISTENCE,
     PROCESS_TIME,
-    RUNNING
+    RUNNING,
+    CAPTURED_EMAILS
 
 
 
