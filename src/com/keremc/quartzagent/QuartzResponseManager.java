@@ -20,7 +20,7 @@ public class QuartzResponseManager {
     private Set<Job> jobs = new HashSet<Job>();
 
     private static HashMap<String, String> lastBatchProcessedFolderTopNames = new HashMap<String, String>();
-    private static HashMap<String, Long> lastFolderReads= new HashMap<String, Long>();
+    private static HashMap<String, Long> lastFolderReads = new HashMap<String, Long>();
 
     public void query() {
 
@@ -95,13 +95,13 @@ public class QuartzResponseManager {
             String data = dateFormat.format(date);
 
             if (option == Option.ERROR_EXISTENCE) {
-                File errorFolder = new File(j.getPath() + File.separator + File.separator + "Errors" + File.separator + data);
+                File errorFolder = new File(j.getPath() + File.separator + "Errors" + File.separator + data);
 
                 if (!errorFolder.exists()) {
                     continue;
                 }
 
-                System.out.println(errorFolder.getAbsolutePath());
+                System.out.println("Error folder for " + j.getName() + ": " + errorFolder.getAbsolutePath());
 
                 int amt = errorFolder.listFiles().length;
 
@@ -144,7 +144,7 @@ public class QuartzResponseManager {
                 String finalFolderName = path.split("/")[path.split("/").length - 1];
 
                 File cap_data = new File(new File(j.getPath()).getParentFile().getParentFile() + File.separator + "cap_data" + File.separator + "commit" + File.separator + finalFolderName);
-                System.out.println(cap_data.toString());
+                System.out.println("Captured email data folder: " + cap_data.toString());
                 int files = 0;
                 if (cap_data.exists() && cap_data.isDirectory() && cap_data.listFiles().length > 0) {
 
@@ -156,7 +156,7 @@ public class QuartzResponseManager {
                         lastFolderReads.put(j.getName(), 0L);
                     }
 
-                    if (!lastBatchProcessedFolderTopNames.get(j.getName()).equals(newest.getName())){
+                    if (!lastBatchProcessedFolderTopNames.get(j.getName()).equals(newest.getName())) {
                         lastFolderReads.put(j.getName(), new File(cap_data + File.separator + lastBatchProcessedFolderTopNames.get(j.getName())).lastModified());
                         lastBatchProcessedFolderTopNames.put(j.getName(), newest.getName());
                     }
@@ -166,7 +166,7 @@ public class QuartzResponseManager {
                             files += f.listFiles().length;
                         }
                     }
-                    header.add("" + files + " emails have been captured for " + j.getName()+" since " + new SimpleDateFormat().format(new Date(lastFolderReads.get(j.getName()))));
+                    header.add("" + files + " emails have been captured for " + j.getName() + " since " + new SimpleDateFormat().format(new Date(lastFolderReads.get(j.getName()))));
 
                 }
 
@@ -191,9 +191,9 @@ public class QuartzResponseManager {
         long la = 0L;
         File a = file.listFiles()[0];
         for (File f : file.listFiles()) {
-            if (f.lastModified() >la ){
+            if (f.lastModified() > la) {
                 la = f.lastModified();
-                a=f;
+                a = f;
             }
         }
         return a;
